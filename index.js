@@ -27,35 +27,34 @@ app.post('/jiraShipped', (req, res) => {
   console.log(payload);
 
   if (!validPayload(payload)) {
-    res.send('Invalid Payload');
+    res.status(500).send('Invalid Payload');
     return;
   }
 
-
   const capture = camera.capture();
-  capture.on('data', (imgData) => {
-    try {
-      const timeStamp = Date.now();
-      const fileName = `${timeStamp}.jpg`;
-      const imgPath = path.join(CAPTURES_PATH, fileName);
+  capture.on('data', imgData => {
+    const timeStamp = Date.now();
+    const fileName = `${timeStamp}.jpg`;
+    const imgPath = path.join(CAPTURES_PATH, fileName);
 
-      fs.writeFileAsync(imgPath, imgData).then(_ => {
-        console.log('Captured image');
-        getStoredCaptures(CAPTURES_STORAGE_PATH).then(data => {
-          data.items.push({ fileName, timeStamp, overlay: payload.description, key: payload.key });
-          saveStoredCaptures(CAPTURES_STORAGE_PATH, data);
-        });
-      }).error((err) => {
-        console.log(err);
-        res.send('Could not store image');
-      });
+    fs.writeFileAsync(imgPath, imgData).then(_ => {
+      console.log('Captured image');
+      return getStoredCaptures(CAPTURES_STORAGE_PATH);
+    }).then(data => {
+      data.items.push({fileName, timeStamp, overlay: payload.description, key: payload.key});
+      return saveStoredCaptures(CAPTURES_STORAGE_PATH, data);
+    }).catch((err) => {
+      console.log(err);
+      res.status(500).send('Could not store image');
+    });
 
-      console.log(`Writing image at ${imgPath}`);
-      res.send('OK');
+    console.log(`Writing image at ${imgPath}`);
+    res.send('OK');
+  });
 
-    } catch (e) {
-      res.send('Error');
-    }
+  capture.on('error', (error) => {
+    console.error(error);
+    res.status(500).send('Capturing picture failed');
   });
 });
 
@@ -79,7 +78,13 @@ function ensureStoredCaptures(path) {
 
 function getStoredCaptures(path) {
   return fs.readFileAsync(path, 'utf8').then(data => {
+    try {
       return JSON.parse(data);
+    }
+    catch (e) {
+      console.error('Could not parse JSON')
+      return {};
+    }
   });
 }
 
@@ -103,7 +108,6 @@ function renderHtml(capturePaths) {
     `;
     return acc;
   }, '');
-
 
 
   return `

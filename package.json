@@ -1,21 +1,22 @@
 {
   "name": "shnipshit",
   "version": "0.0.0",
-  "description": "Tessel project",
+  "description": "ship it Snap Chat style",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": "www.github.com/tessel/t2-cli",
-  "keywords": [
-    "Tessel"
-  ],
-  "license": "MIT",
-  "readme": "A bare bones Tessel 2 blinky script.",
   "dependencies": {
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "tessel-av": "^0.19.0"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git://github.com/teebot/SchnipShit.git",
+  "keywords": [
+    "Tessel"
+  ],
+  "license": "MIT",
+  "readme": "A bare bones Tessel 2 blinky script."
 }
